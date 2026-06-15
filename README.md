@@ -262,3 +262,9 @@ instant swap rather than animating a giant reflow.
   for a single-user demo, not a multi-tenant deployment. One known cosmetic
   nicety is deferred: `narrate` ticks update slightly ahead of the surface frame
   they describe (the ticker is intentionally decoupled from the render coalescer).
+
+---
+
+## License
+
+[MIT](LICENSE).
