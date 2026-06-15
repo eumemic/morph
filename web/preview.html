@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Morph · offline preview</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app" data-theme="dark" data-accent="violet">
+    <header id="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Morph</span>
+        <span class="brand-sub">offline preview</span>
+      </div>
+      <h1 id="title" class="topbar-title">Loading…</h1>
+      <div class="status" id="status" data-state="connecting">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="counter" class="status-text" style="font-variant-numeric:tabular-nums"></span>
+      </div>
+    </header>
+
+    <div id="ticker" class="ticker" aria-live="polite"></div>
+    <main id="stage" class="stage" aria-label="agent dashboard"></main>
+    <footer class="footnote">
+      Offline preview of <code>scenario.json</code> — no server. Add
+      <code>?static&amp;step=N</code> to freeze a frame, or use <kbd>→</kbd> to step.
+    </footer>
+
+    <form id="composer" class="composer" autocomplete="off">
+      <span class="composer-mark" aria-hidden="true">›</span>
+      <input id="composer-input" class="composer-input" type="text"
+             placeholder="Message the agent…  (it answers by reshaping the dashboard)"
+             aria-label="Message the agent" />
+      <button id="composer-send" class="composer-send" type="submit" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <script type="module" src="js/preview.js"></script>
+</body>
+</html>

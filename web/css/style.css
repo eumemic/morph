@@ -1,0 +1,405 @@
+/* style.css — Morph runtime visual system + View Transitions wiring. */
+
+:root {
+  /* motion */
+  --m-dur: 320ms;
+  --m-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* surfaces (dark) */
+  --bg-0: #0a0b12;
+  --bg-1: #11131d;
+  --bg-2: #171a27;
+  --bg-3: #1e2233;
+  --line: #2a2f44;
+  --line-soft: #21263a;
+  --ink-0: #f2f4fb;
+  --ink-1: #c2c8de;
+  --ink-2: #8b93b0;
+  --ink-3: #5d6480;
+
+  /* accent palette */
+  --violet: #a78bfa;
+  --emerald: #34d399;
+  --info: #60a5fa;
+  --success: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --neutral: #94a3b8;
+  --amber: #fbbf24;
+
+  --accent: var(--violet);
+  --app-accent: var(--violet);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink-1);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(167, 139, 250, 0.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(52, 211, 153, 0.07), transparent 55%),
+    var(--bg-0);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app[data-accent="violet"]  { --app-accent: var(--violet); }
+#app[data-accent="emerald"] { --app-accent: var(--emerald); }
+#app[data-accent="info"]    { --app-accent: var(--info); }
+
+#app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 22px 26px 48px;
+}
+
+/* --- topbar -------------------------------------------------------------- */
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.brand { display: flex; align-items: center; gap: 9px; }
+.brand-mark {
+  width: 22px; height: 22px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--app-accent), color-mix(in oklab, var(--app-accent) 40%, #fff));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 6px 18px -6px var(--app-accent);
+  transition: background var(--m-dur) var(--m-ease);
+}
+.brand-name { font-weight: 700; color: var(--ink-0); letter-spacing: -0.01em; }
+.brand-sub { color: var(--ink-3); font-size: 12px; }
+.topbar-title {
+  flex: 1; text-align: center; margin: 0;
+  font-size: 15px; font-weight: 600; color: var(--ink-1); letter-spacing: 0.01em;
+}
+.status { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neutral); box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.12); }
+.status[data-state="live"] .status-dot { background: var(--success); box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.16); animation: m-pulse 2s infinite; }
+.status[data-state="live"] .status-text::after { content: "live"; }
+.status[data-state="connecting"] .status-text::after { content: "connecting"; }
+.status[data-state="reconnecting"] .status-dot { background: var(--warn); }
+.status[data-state="reconnecting"] .status-text::after { content: "reconnecting"; }
+@keyframes m-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+/* --- ticker (the only "chat" vestige) ----------------------------------- */
+.ticker {
+  min-height: 30px; display: flex; align-items: center;
+  margin: 14px 2px 4px; padding: 7px 14px;
+  border-radius: 999px; background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line-soft); width: fit-content; max-width: 100%;
+}
+.ticker::before {
+  content: "›_"; color: var(--app-accent); font-family: var(--mono);
+  margin-right: 10px; font-size: 13px; opacity: 0.8;
+}
+.m-ticker-line { color: var(--ink-1); font-size: 13.5px; opacity: 0; transform: translateY(4px); }
+.m-ticker-line.in { animation: m-enter 360ms var(--m-ease) forwards; }
+
+.stage { flex: 1; margin-top: 14px; }
+.footnote { margin-top: 30px; margin-bottom: 76px; color: var(--ink-3); font-size: 12px; text-align: center; }
+.footnote code { font-family: var(--mono); color: var(--ink-2); }
+
+/* --- composer: the always-available primary human→agent channel --------- */
+.ticker .m-ticker-line.you { color: var(--app-accent); font-weight: 560; }
+.composer {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: 16px; z-index: 50;
+  width: min(1128px, calc(100vw - 52px));
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 8px 8px 16px; border-radius: 14px;
+  background: color-mix(in oklab, var(--bg-2) 86%, transparent);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px -20px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.composer:focus-within { border-color: color-mix(in oklab, var(--app-accent) 55%, var(--line)); }
+.composer-mark { color: var(--app-accent); font-family: var(--mono); font-size: 15px; opacity: 0.8; }
+.composer-input {
+  flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+  color: var(--ink-0); font: inherit; font-size: 14px; padding: 6px 0;
+}
+.composer-input::placeholder { color: var(--ink-3); }
+.composer-send {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 10px; cursor: pointer; color: #0a0b12;
+  background: linear-gradient(180deg, var(--app-accent), color-mix(in oklab, var(--app-accent) 78%, #000));
+  border: 1px solid color-mix(in oklab, var(--app-accent) 60%, #000);
+  transition: transform 120ms var(--m-ease), filter 120ms var(--m-ease), opacity 120ms;
+}
+.composer-send svg { width: 16px; height: 16px; }
+.composer-send:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.composer-send:disabled { opacity: 0.4; cursor: default; transform: none; filter: none; }
+@media (prefers-reduced-motion: reduce) { .composer { backdrop-filter: none; -webkit-backdrop-filter: none; } }
+
+/* --- surface / layout containers ---------------------------------------- */
+.m-surface-inner { display: flex; flex-direction: column; gap: 20px; }
+.m-stack { display: flex; flex-direction: column; gap: 12px; }
+.m-row { display: flex; gap: 12px; align-items: flex-start; }
+.m-row.wrap { flex-wrap: wrap; }
+
+.m-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, 1fr); align-items: start; }
+.m-grid.cols-1 { grid-template-columns: 1fr; }
+.m-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.m-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.m-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.m-grid.gap-sm { gap: 10px; }
+.m-grid.gap-lg { gap: 22px; }
+@media (max-width: 860px) { .m-grid { grid-template-columns: 1fr !important; } }
+
+/* --- heading ------------------------------------------------------------- */
+.m-heading { display: flex; flex-direction: column; gap: 4px; }
+.m-kicker {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--app-accent);
+}
+.m-h { margin: 0; color: var(--ink-0); letter-spacing: -0.02em; line-height: 1.1; }
+.m-h.lvl-1 { font-size: 30px; font-weight: 760; }
+.m-h.lvl-2 { font-size: 22px; font-weight: 700; }
+.m-h.lvl-3 { font-size: 17px; font-weight: 650; }
+
+/* --- section ------------------------------------------------------------- */
+.m-section { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.m-section-head { display: flex; align-items: center; gap: 10px; }
+.m-section-icon { color: var(--app-accent); display: inline-flex; }
+.m-section-icon .m-icon { width: 18px; height: 18px; }
+.m-section-title { font-size: 14px; font-weight: 650; color: var(--ink-0); }
+.m-section-sub { font-size: 12px; color: var(--ink-3); }
+.m-section-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* --- card ---------------------------------------------------------------- */
+.m-card {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 15px; box-shadow: var(--shadow); min-width: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.m-card.elevated { box-shadow: 0 20px 50px -22px rgba(0, 0, 0, 0.7); }
+.m-card-head { display: flex; align-items: flex-start; gap: 11px; }
+.m-card-icon {
+  display: inline-flex; flex: none; color: var(--accent);
+  width: 30px; height: 30px; align-items: center; justify-content: center;
+  border-radius: 9px; background: color-mix(in oklab, var(--accent) 16%, transparent);
+}
+.m-card-icon .m-icon { width: 16px; height: 16px; }
+.m-card-heads { min-width: 0; }
+.m-card-title { font-weight: 640; color: var(--ink-0); font-size: 14px; line-height: 1.25; }
+.m-card-sub { color: var(--ink-3); font-size: 12px; margin-top: 2px; }
+.m-card-body:empty { display: none; }
+.m-card-body { display: flex; flex-direction: column; gap: 8px; }
+.m-card-foot { font-size: 11px; color: var(--ink-3); border-top: 1px solid var(--line-soft); padding-top: 8px; font-family: var(--mono); }
+
+/* --- stats / metric ------------------------------------------------------ */
+.m-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.m-metric {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 13px 15px; display: flex; flex-direction: column; gap: 6px;
+  position: relative; overflow: hidden;
+}
+.m-metric::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: 0.6;
+}
+.m-metric-top { display: flex; align-items: center; justify-content: space-between; }
+.m-metric-label { font-size: 12px; color: var(--ink-2); font-weight: 550; }
+.m-metric-value { font-size: 27px; font-weight: 720; color: var(--ink-0); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.m-delta { font-size: 11px; display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 999px; }
+.m-delta .m-icon { width: 12px; height: 12px; }
+.m-delta.dir-up { color: var(--success); background: color-mix(in oklab, var(--success) 14%, transparent); }
+.m-delta.dir-down { color: var(--danger); background: color-mix(in oklab, var(--danger) 14%, transparent); }
+.m-delta.dir-down .m-icon { transform: scaleY(-1); }
+.m-spark { width: 100%; height: 28px; color: var(--accent); margin-top: 2px; }
+.m-spark .m-chart-line { stroke-width: 2; }
+
+/* --- board / column (kanban) -------------------------------------------- */
+.m-board { display: flex; gap: 12px; align-items: stretch; min-width: 0; }
+.m-column {
+  flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.018);
+  border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 10px;
+  display: flex; flex-direction: column; gap: 9px;
+}
+.m-col-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; }
+.m-col-title { font-size: 12px; font-weight: 650; color: var(--ink-1); letter-spacing: 0.02em; }
+.m-col-count {
+  font-size: 11px; font-variant-numeric: tabular-nums; color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 16%, transparent);
+  min-width: 20px; text-align: center; border-radius: 999px; padding: 1px 7px;
+}
+.m-col-body { display: flex; flex-direction: column; gap: 9px; min-height: 24px; }
+.m-column .m-card { padding: 11px 12px; }
+.m-column .m-card-title { font-size: 12.5px; }
+
+/* --- list / listitem ----------------------------------------------------- */
+.m-list { display: flex; flex-direction: column; gap: 8px; }
+.m-list.dense { gap: 4px; }
+.m-listitem {
+  display: flex; align-items: center; gap: 11px; padding: 9px 11px;
+  background: rgba(255, 255, 255, 0.02); border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm); border-left: 2.5px solid var(--tone, var(--neutral));
+}
+.m-li-icon { color: var(--tone, var(--ink-2)); display: inline-flex; flex: none; }
+.m-li-icon .m-icon { width: 16px; height: 16px; }
+.m-li-text { min-width: 0; flex: 1; }
+.m-li-title { font-size: 13px; color: var(--ink-0); font-weight: 540; }
+.m-li-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+.m-li-trail { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* --- badge --------------------------------------------------------------- */
+.m-badge {
+  display: inline-flex; align-items: center; width: fit-content;
+  font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+  color: var(--tone, var(--neutral));
+  background: color-mix(in oklab, var(--tone, var(--neutral)) 15%, transparent);
+  border: 1px solid color-mix(in oklab, var(--tone, var(--neutral)) 30%, transparent);
+  transition: color var(--m-dur) var(--m-ease), background var(--m-dur) var(--m-ease), border-color var(--m-dur) var(--m-ease);
+}
+
+/* --- note ---------------------------------------------------------------- */
+.m-note {
+  display: flex; gap: 9px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: color-mix(in oklab, var(--tone, var(--info)) 10%, transparent);
+  border: 1px solid color-mix(in oklab, var(--tone, var(--info)) 26%, transparent);
+  color: var(--ink-1); font-size: 13px;
+}
+.m-note-icon { color: var(--tone, var(--info)); display: inline-flex; }
+.m-note-icon .m-icon { width: 16px; height: 16px; }
+
+/* --- progress ------------------------------------------------------------ */
+.m-progress { display: flex; flex-direction: column; gap: 7px; }
+.m-progress-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); }
+.m-progress-head .m-num { color: var(--ink-0); font-weight: 640; font-variant-numeric: tabular-nums; }
+.m-progress-track { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
+.m-progress-fill {
+  height: 100%; border-radius: 999px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), color-mix(in oklab, var(--accent) 55%, #fff));
+}
+
+/* --- kpi ring ------------------------------------------------------------ */
+.m-kpiring { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.m-ring-wrap { position: relative; display: grid; place-items: center; }
+.m-ring { transform: rotate(0deg); }
+.m-ring-bg { stroke: rgba(255, 255, 255, 0.07); }
+.m-ring-fg { stroke: var(--accent); transition: stroke var(--m-dur) var(--m-ease); }
+.m-ring-center { position: absolute; font-size: 22px; font-weight: 720; color: var(--ink-0); font-variant-numeric: tabular-nums; }
+.m-ring-label { font-size: 12px; color: var(--ink-2); }
+
+/* --- chart --------------------------------------------------------------- */
+.m-chart-wrap { width: 100%; }
+.m-chart { display: block; width: 100%; overflow: visible; }
+.m-chart-line { stroke-width: 2.5; }
+
+/* accent -> color (so currentColor drives charts/sparklines/rings) */
+.m-accent-violet { --accent: var(--violet); color: var(--violet); }
+.m-accent-emerald { --accent: var(--emerald); color: var(--emerald); }
+.m-accent-info { --accent: var(--info); color: var(--info); }
+.m-accent-success { --accent: var(--success); color: var(--success); }
+.m-accent-warn { --accent: var(--warn); color: var(--warn); }
+.m-accent-amber { --accent: var(--amber); color: var(--amber); }
+.m-accent-danger { --accent: var(--danger); color: var(--danger); }
+.m-accent-neutral { --accent: var(--neutral); color: var(--neutral); }
+
+/* tone -> --tone */
+.m-tone-info { --tone: var(--info); }
+.m-tone-success { --tone: var(--success); }
+.m-tone-warn { --tone: var(--warn); }
+.m-tone-danger { --tone: var(--danger); }
+.m-tone-neutral { --tone: var(--neutral); }
+
+/* --- spinner ------------------------------------------------------------- */
+.m-spinner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 26px 12px; color: var(--ink-3); }
+.m-spinner-ring {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.10); border-top-color: var(--app-accent);
+  animation: m-spin 0.9s linear infinite;
+}
+.m-spinner-label { font-size: 12.5px; color: var(--ink-3); }
+@keyframes m-spin { to { transform: rotate(360deg); } }
+
+/* --- markdown / kv / misc ------------------------------------------------ */
+.m-markdown { color: var(--ink-1); font-size: 13.5px; line-height: 1.6; }
+.m-markdown p { margin: 0 0 8px; }
+.m-markdown strong { color: var(--ink-0); font-weight: 680; }
+.m-markdown code { font-family: var(--mono); font-size: 12px; background: rgba(255, 255, 255, 0.06); padding: 1px 5px; border-radius: 5px; color: var(--violet); }
+.m-markdown a { color: var(--app-accent); text-decoration: none; border-bottom: 1px solid color-mix(in oklab, var(--app-accent) 40%, transparent); }
+.m-md-ul { margin: 0; padding-left: 18px; }
+
+.m-kv { display: flex; flex-direction: column; gap: 0; }
+.m-kv-row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+.m-kv-row:last-child { border-bottom: none; }
+.m-kv-k { color: var(--ink-3); }
+.m-kv-v { color: var(--ink-0); font-weight: 560; text-align: right; }
+
+.m-divider { display: flex; align-items: center; gap: 12px; color: var(--ink-3); font-size: 11px; }
+.m-divider::before, .m-divider::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+.m-divider:not(.labeled)::after { display: none; }
+.m-spacer { flex: none; }
+
+/* --- timeline / event ---------------------------------------------------- */
+.m-timeline { display: flex; flex-direction: column; gap: 0; padding-left: 6px; }
+.m-event { display: flex; gap: 12px; padding: 0 0 14px; position: relative; }
+.m-event::before { content: ""; position: absolute; left: 4px; top: 14px; bottom: -2px; width: 1px; background: var(--line); }
+.m-event:last-child::before { display: none; }
+.m-event-dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; flex: none; background: var(--tone, var(--neutral)); box-shadow: 0 0 0 3px color-mix(in oklab, var(--tone, var(--neutral)) 18%, transparent); z-index: 1; }
+.m-event-title { font-size: 13px; color: var(--ink-0); }
+.m-event-time { font-size: 11px; color: var(--ink-3); }
+
+/* --- button -------------------------------------------------------------- */
+.m-btn {
+  display: inline-flex; align-items: center; gap: 7px; width: fit-content;
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 8px 14px; border-radius: 10px; color: #0a0b12;
+  background: linear-gradient(180deg, var(--accent), color-mix(in oklab, var(--accent) 78%, #000));
+  border: 1px solid color-mix(in oklab, var(--accent) 60%, #000);
+  box-shadow: 0 8px 22px -12px var(--accent);
+  transition: transform 120ms var(--m-ease), filter 120ms var(--m-ease);
+}
+.m-btn .m-icon { width: 15px; height: 15px; }
+.m-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.m-btn:active { transform: translateY(0); }
+
+.m-unknown { font-family: var(--mono); font-size: 12px; color: var(--ink-3); border: 1px dashed var(--line); border-radius: 8px; padding: 8px 10px; }
+.m-emoji { display: inline-flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1; font-style: normal; }
+
+/* ======================================================================== */
+/* View Transitions wiring                                                   */
+/* ======================================================================== */
+
+/* Freeze the root crossfade by default: only the stager-named elements (lifted
+   into their own ::view-transition groups) animate. Unchanged content has
+   identical old/new snapshots, so an instant swap is invisible. */
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 0.001ms; }
+
+/* Fallback: when the stager caps a huge diff, re-enable a root crossfade so the
+   un-named overflow still appears smoothly. */
+html.m-rootfade::view-transition-old(root) { animation: m-fade-out var(--m-dur) both; }
+html.m-rootfade::view-transition-new(root) { animation: m-fade-in var(--m-dur) both; }
+
+@keyframes m-enter { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes m-exit  { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-6px) scale(0.97); } }
+@keyframes m-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes m-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Respect reduced motion: kill view-transition animation and spinners. JS also
+   skips startViewTransition and jumps tweens to final under this preference. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+  .m-spinner-ring { animation: none; }
+  .brand-mark { transition: none; }
+}

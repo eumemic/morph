@@ -1,0 +1,273 @@
+{
+  "title": "Research Agent",
+  "topic": "What is the state of declarative agent-UI languages in 2026?",
+  "steps": [
+    {
+      "delayMs": 800,
+      "narrate": "Planning…",
+      "messages": [
+        {
+          "type": "createSurface",
+          "surface": {
+            "root": "root",
+            "components": {
+              "root": { "id": "root", "type": "surface", "children": ["hero", "stats", "body"] },
+              "hero": { "id": "hero", "type": "heading", "props": { "text": "Research Agent", "level": 1, "kicker": "Investigating the state of the art" } },
+              "stats": { "id": "stats", "type": "stat-group", "children": ["mSources", "mConf", "mTokens"] },
+              "mSources": { "id": "mSources", "type": "metric", "props": { "label": "Sources", "value": { "$bind": "/m/sources", "format": "int", "tween": true }, "accent": "violet" } },
+              "mConf": { "id": "mConf", "type": "metric", "props": { "label": "Confidence", "value": { "$bind": "/m/confidence", "format": "percent", "tween": true }, "accent": "violet" } },
+              "mTokens": { "id": "mTokens", "type": "metric", "props": { "label": "Tokens", "value": { "$bind": "/m/tokens", "format": "compact", "tween": true }, "accent": "violet" } },
+              "body": { "id": "body", "type": "grid", "props": { "cols": 3, "gap": "lg" }, "children": ["planSec", "board"] },
+              "planSec": { "id": "planSec", "type": "section", "props": { "title": "Plan", "subtitle": "Research strategy", "icon": "map" }, "children": ["plan"] },
+              "plan": { "id": "plan", "type": "spinner", "props": { "label": "Drafting a research plan…" } },
+              "board": { "id": "board", "type": "board", "layout": { "span": 2 }, "children": ["colQ", "colR", "colS"] },
+              "colQ": { "id": "colQ", "type": "column", "props": { "title": "Queued", "accent": "neutral", "count": { "$bind": "/m/queued", "format": "int" } }, "children": [] },
+              "colR": { "id": "colR", "type": "column", "props": { "title": "Reading", "accent": "info", "count": { "$bind": "/m/reading", "format": "int" } }, "children": [] },
+              "colS": { "id": "colS", "type": "column", "props": { "title": "Synthesized", "accent": "success", "count": { "$bind": "/m/synth", "format": "int" } }, "children": [] }
+            },
+            "data": {
+              "m": { "sources": 0, "confidence": 0, "tokens": 0, "progress": 0, "queued": 0, "reading": 0, "synth": 0, "confSeries": [] }
+            },
+            "props": { "title": "Research Agent", "accent": "violet", "theme": "dark" }
+          }
+        }
+      ]
+    },
+    {
+      "delayMs": 1100,
+      "narrate": "Plan ready — five steps.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "plan": { "id": "plan", "type": "list", "props": { "dense": false }, "children": ["p1", "p2", "p3", "p4", "p5"] },
+            "p1": { "id": "p1", "type": "listitem", "props": { "title": "Survey 2026 agent-UI specs", "subtitle": "A2UI, AG-UI, MorphSpec", "icon": "search", "tone": "info" } },
+            "p2": { "id": "p2", "type": "listitem", "props": { "title": "Compare representations", "subtitle": "tree vs. adjacency list", "icon": "layers", "tone": "neutral" } },
+            "p3": { "id": "p3", "type": "listitem", "props": { "title": "Assess transition models", "subtitle": "derived vs. explicit motion", "icon": "activity", "tone": "neutral" } },
+            "p4": { "id": "p4", "type": "listitem", "props": { "title": "Evaluate safety posture", "subtitle": "data-only vs. code-gen", "icon": "shield", "tone": "neutral" } },
+            "p5": { "id": "p5", "type": "listitem", "props": { "title": "Synthesize findings", "subtitle": "draft conclusions", "icon": "check", "tone": "neutral" } }
+          }
+        }
+      ]
+    },
+    {
+      "delayMs": 900,
+      "narrate": "Queuing candidate sources…",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "colQ": { "id": "colQ", "type": "column", "props": { "title": "Queued", "accent": "neutral", "count": { "$bind": "/m/queued", "format": "int" } }, "children": ["src1", "src2", "src3", "src4"] },
+            "src1": { "id": "src1", "type": "card", "props": { "title": "A2UI: Adjacency-List UIs", "subtitle": "Spec, rev. 3", "icon": "file", "accent": "violet" } },
+            "src2": { "id": "src2", "type": "card", "props": { "title": "AG-UI Event Protocol", "subtitle": "Working draft", "icon": "file", "accent": "violet" } },
+            "src3": { "id": "src3", "type": "card", "props": { "title": "View Transitions in Agents", "subtitle": "Conf. paper", "icon": "file", "accent": "violet" } },
+            "src4": { "id": "src4", "type": "card", "props": { "title": "Generative UI: A Survey", "subtitle": "2026 review", "icon": "file", "accent": "violet" } }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/sources": 4, "/m/queued": 4, "/m/tokens": 1800 } }
+      ]
+    },
+    {
+      "delayMs": 1000,
+      "narrate": "Reading the A2UI spec…",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "colQ": { "id": "colQ", "type": "column", "props": { "title": "Queued", "accent": "neutral", "count": { "$bind": "/m/queued", "format": "int" } }, "children": ["src2", "src3", "src4"] },
+            "colR": { "id": "colR", "type": "column", "props": { "title": "Reading", "accent": "info", "count": { "$bind": "/m/reading", "format": "int" } }, "children": ["src1"] }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/queued": 3, "/m/reading": 1, "/m/tokens": 9400, "/m/confidence": 0.14, "/m/progress": 0.12 } }
+      ]
+    },
+    {
+      "delayMs": 950,
+      "narrate": "Synthesized A2UI; pulling AG-UI next.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "colQ": { "id": "colQ", "type": "column", "props": { "title": "Queued", "accent": "neutral", "count": { "$bind": "/m/queued", "format": "int" } }, "children": ["src3", "src4"] },
+            "colR": { "id": "colR", "type": "column", "props": { "title": "Reading", "accent": "info", "count": { "$bind": "/m/reading", "format": "int" } }, "children": ["src2"] },
+            "colS": { "id": "colS", "type": "column", "props": { "title": "Synthesized", "accent": "success", "count": { "$bind": "/m/synth", "format": "int" } }, "children": ["src1"] }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/queued": 2, "/m/reading": 1, "/m/synth": 1, "/m/tokens": 21500, "/m/confidence": 0.31, "/m/progress": 0.3 } }
+      ]
+    },
+    {
+      "delayMs": 900,
+      "narrate": "Confidence is climbing — charting it.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "body": { "id": "body", "type": "grid", "props": { "cols": 3, "gap": "lg" }, "children": ["planSec", "board", "trendSec"] },
+            "trendSec": { "id": "trendSec", "type": "section", "props": { "title": "Confidence over time", "subtitle": "running estimate", "icon": "trending-up" }, "children": ["confChart", "confRing", "progress"] },
+            "confChart": { "id": "confChart", "type": "chart", "props": { "variant": "area", "series": { "$bind": "/m/confSeries" }, "accent": "violet", "height": 120 } },
+            "confRing": { "id": "confRing", "type": "kpi-ring", "props": { "label": "Confidence", "value": { "$bind": "/m/confidence", "tween": true }, "accent": "violet" } },
+            "progress": { "id": "progress", "type": "progress", "props": { "label": "Research progress", "value": { "$bind": "/m/progress", "tween": true }, "accent": "violet" } }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/confSeries": [0.14, 0.31] } }
+      ]
+    },
+    {
+      "delayMs": 1050,
+      "narrate": "Synthesized AG-UI; reading the transitions paper.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "colQ": { "id": "colQ", "type": "column", "props": { "title": "Queued", "accent": "neutral", "count": { "$bind": "/m/queued", "format": "int" } }, "children": ["src4"] },
+            "colR": { "id": "colR", "type": "column", "props": { "title": "Reading", "accent": "info", "count": { "$bind": "/m/reading", "format": "int" } }, "children": ["src3"] },
+            "colS": { "id": "colS", "type": "column", "props": { "title": "Synthesized", "accent": "success", "count": { "$bind": "/m/synth", "format": "int" } }, "children": ["src1", "src2"] }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/queued": 1, "/m/synth": 2, "/m/tokens": 38800, "/m/confidence": 0.52, "/m/progress": 0.52, "/m/confSeries": [0.14, 0.31, 0.52] } }
+      ]
+    },
+    {
+      "delayMs": 900,
+      "narrate": "Last source in — synthesizing the survey.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "colR": { "id": "colR", "type": "column", "props": { "title": "Reading", "accent": "info", "count": { "$bind": "/m/reading", "format": "int" } }, "children": ["src4"] },
+            "colS": { "id": "colS", "type": "column", "props": { "title": "Synthesized", "accent": "success", "count": { "$bind": "/m/synth", "format": "int" } }, "children": ["src1", "src2", "src3"] }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/queued": 0, "/m/synth": 3, "/m/tokens": 51200, "/m/confidence": 0.68, "/m/progress": 0.68, "/m/confSeries": [0.14, 0.31, 0.52, 0.68] } }
+      ]
+    },
+    {
+      "delayMs": 1000,
+      "narrate": "All sources synthesized.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "colR": { "id": "colR", "type": "column", "props": { "title": "Reading", "accent": "info", "count": { "$bind": "/m/reading", "format": "int" } }, "children": [] },
+            "colS": { "id": "colS", "type": "column", "props": { "title": "Synthesized", "accent": "success", "count": { "$bind": "/m/synth", "format": "int" } }, "children": ["src1", "src2", "src3", "src4"] }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/reading": 0, "/m/synth": 4, "/m/tokens": 60400, "/m/confidence": 0.74, "/m/progress": 0.76, "/m/confSeries": [0.14, 0.31, 0.52, 0.68, 0.74] } }
+      ]
+    },
+    {
+      "delayMs": 950,
+      "narrate": "Drafting findings…",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "root": { "id": "root", "type": "surface", "children": ["hero", "stats", "body", "findSec"] },
+            "findSec": { "id": "findSec", "type": "section", "props": { "title": "Findings", "subtitle": "what the sources agree on", "icon": "lightbulb" }, "children": ["findGrid"] },
+            "findGrid": { "id": "findGrid", "type": "grid", "props": { "cols": 3, "gap": "md" }, "children": ["find1", "find2", "find3"] },
+            "find1": { "id": "find1", "type": "card", "props": { "title": "Adjacency lists won", "subtitle": "stable IDs enable free diffing", "icon": "check", "accent": "success", "footer": "A2UI · MorphSpec" }, "children": ["b1"] },
+            "b1": { "id": "b1", "type": "badge", "props": { "text": "high confidence", "tone": "success" } },
+            "find2": { "id": "find2", "type": "spinner", "props": { "label": "Weighing the motion model…" } },
+            "find3": { "id": "find3", "type": "card", "props": { "title": "Code-gen UIs dominate", "subtitle": "agents emit executable views", "icon": "alert-triangle", "accent": "amber", "footer": "unverified" }, "children": ["b3"] },
+            "b3": { "id": "b3", "type": "badge", "props": { "text": "low confidence", "tone": "warn" } }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/tokens": 64100 } }
+      ]
+    },
+    {
+      "delayMs": 1100,
+      "narrate": "Second finding resolved.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "find2": { "id": "find2", "type": "card", "props": { "title": "Motion is derived, not authored", "subtitle": "View Transitions FLIP from the diff", "icon": "activity", "accent": "info", "footer": "transitions paper" }, "children": ["b2"] },
+            "b2": { "id": "b2", "type": "badge", "props": { "text": "medium confidence", "tone": "info" } }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/tokens": 67300, "/m/confidence": 0.79, "/m/confSeries": [0.14, 0.31, 0.52, 0.68, 0.74, 0.79] } }
+      ]
+    },
+    {
+      "delayMs": 1000,
+      "narrate": "Corroborated finding 2 — upgrading to high confidence.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "b2": { "id": "b2", "type": "badge", "props": { "text": "high confidence", "tone": "success" } }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/confidence": 0.83, "/m/progress": 0.85, "/m/confSeries": [0.14, 0.31, 0.52, 0.68, 0.74, 0.79, 0.83] } }
+      ]
+    },
+    {
+      "delayMs": 1200,
+      "narrate": "Finding 3 refuted: data-only catalogs are the safer norm — dropping it.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "findGrid": { "id": "findGrid", "type": "grid", "props": { "cols": 3, "gap": "md" }, "children": ["find1", "find2"] }
+          },
+          "remove": ["find3", "b3"]
+        },
+        { "type": "updateDataModel", "patch": { "/m/confidence": 0.88, "/m/progress": 0.9, "/m/confSeries": [0.14, 0.31, 0.52, 0.68, 0.74, 0.79, 0.83, 0.88] } }
+      ]
+    },
+    {
+      "delayMs": 900,
+      "narrate": "Reflowing into a summary…",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "body": { "id": "body", "type": "grid", "props": { "cols": 3, "gap": "lg" }, "children": ["planSec", "trendSec"] }
+          },
+          "remove": ["board", "colQ", "colR", "colS", "src1", "src2", "src3", "src4"]
+        }
+      ]
+    },
+    {
+      "delayMs": 1000,
+      "narrate": "Composing conclusions.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "root": { "id": "root", "type": "surface", "children": ["hero", "stats", "summarySec", "body", "findSec"] },
+            "summarySec": { "id": "summarySec", "type": "section", "props": { "title": "Summary", "subtitle": "State of declarative agent-UI, 2026", "icon": "book" }, "children": ["summaryMd", "summaryKv", "digBtn"] },
+            "summaryMd": { "id": "summaryMd", "type": "markdown", "props": { "text": "Declarative, **data-only** agent UIs have displaced code-gen. The winning shape is an *adjacency list* of stable-ID components with a separated data model, so motion can be **derived from the diff** rather than authored. MorphSpec is a clean expression of this consensus." } },
+            "summaryKv": { "id": "summaryKv", "type": "kv", "props": { "pairs": [{ "k": "Representation", "v": "adjacency list" }, { "k": "Motion", "v": "derived (View Transitions)" }, { "k": "Safety", "v": "data-only catalog" }, { "k": "Sources", "v": "4 synthesized" }] } },
+            "digBtn": { "id": "digBtn", "type": "button", "props": { "text": "Dig deeper", "action": "dig-deeper", "value": "agent-ui-2026", "tone": "violet", "icon": "arrow-right" } }
+          }
+        },
+        { "type": "updateDataModel", "patch": { "/m/tokens": 71900, "/m/confidence": 0.91, "/m/progress": 0.96, "/m/confSeries": [0.14, 0.31, 0.52, 0.68, 0.74, 0.79, 0.83, 0.88, 0.91] } }
+      ]
+    },
+    {
+      "delayMs": 1000,
+      "narrate": "Settling final metrics.",
+      "messages": [
+        {
+          "type": "updateComponents",
+          "components": {
+            "stats": { "id": "stats", "type": "stat-group", "children": ["mSources", "mConf", "mTokens", "mProgress"] },
+            "mConf": { "id": "mConf", "type": "metric", "props": { "label": "Confidence", "value": { "$bind": "/m/confidence", "format": "percent", "tween": true }, "delta": "+91", "deltaDir": "up", "accent": "violet", "spark": { "$bind": "/m/confSeries" } } },
+            "mProgress": { "id": "mProgress", "type": "metric", "props": { "label": "Progress", "value": { "$bind": "/m/progress", "format": "percent", "tween": true }, "deltaDir": "up", "accent": "violet" } }
+          }
+        },
+        { "type": "setSurfaceProps", "props": { "title": "Research Agent · complete", "accent": "emerald" } },
+        { "type": "updateDataModel", "patch": { "/m/confidence": 0.92, "/m/progress": 1, "/m/tokens": 72400, "/m/confSeries": [0.14, 0.31, 0.52, 0.68, 0.74, 0.79, 0.83, 0.88, 0.91, 0.92] } }
+      ]
+    },
+    {
+      "delayMs": 1100,
+      "messages": [
+        { "type": "narrate", "text": "Research complete." }
+      ]
+    }
+  ]
+}
